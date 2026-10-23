@@ -1,0 +1,48 @@
+# Unreal-generated files
+/.vs/
+/Binaries/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/Plugins/**/Binaries/
+/Plugins/**/Intermediate/
+*.sln
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.pdb
+*.obj
+*.log
+/Config/DefaultEditorPerProjectUserSettings.ini
+# Local files and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+
+# Public asset scope: project data and Epic template examples only
+/Content/*
+!/Content/ThirdPerson/
+!/Content/Characters/
+!/Content/__ExternalActors__/
+!/Content/__ExternalObjects__/
+/Content/ThirdPerson/Blueprints/BP_BodyCam.uasset
+/Content/ThirdPerson/Blueprints/Materials/Albedo_Mat.uasset
+/Content/ThirdPerson/Blueprints/Monster/MonsterAttack/Anim_Whisper_Attack1.uasset
+/Content/ThirdPerson/Blueprints/Monster/MonsterAttack/Anim_Whisper_Attack2.uasset
+/Content/ThirdPerson/Blueprints/Monster/MonsterAttack/Anim_Whisper_Attack3.uasset
+/Content/ThirdPerson/Materials/T_MT00083-Tiles_basecolor_Mat1.uasset
+/Content/ThirdPerson/Materials/WallMaterial.uasset
+/Content/ThirdPerson/Materials/m_travertine_rectangular_staggered.uasset
+
+# Python helper cache
+__pycache__/
+*.py[cod]
