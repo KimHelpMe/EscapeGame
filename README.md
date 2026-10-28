@@ -1,54 +1,109 @@
 # Escape Game
 
-물리 오브젝트 조작과 숨겨진 힌트 탐색을 결합한 Unreal Engine 개인 퍼즐 게임 프로젝트입니다.
+### 물리 상호작용 · 시선 기반 퍼즐 · 몬스터 추격
 
-![프로젝트 게임 화면](Docs/Images/warehouse.png)
+<p align="center">
+  <img src="Docs/Images/warehouse.png" alt="Escape Game 창고 플레이 화면" width="100%" />
+</p>
+
+창고의 단서를 찾아 환경 퍼즐을 풀고 탈출하는 3인칭 퍼즐 게임.
 
 ## 프로젝트 정보
 
-- 개발자: 엄태호 / KimHelpMe
-- 개발 기간: 2026.04.21 - 2026.05.11
-- 개발 인원: 1명
-- 엔진 / 언어: Unreal Engine 5.3 / C++
-- 개발 환경: Windows PC
+| 항목 | 내용 |
+| --- | --- |
+| 개발 기간 | 4월 21일 – 5월 11일 |
+| 개발 형태 | 1인 개인 프로젝트 |
+| 엔진 · 언어 | Unreal Engine 5.3 · C++ · Blueprint |
+| 플랫폼 | Windows PC |
+
+## 핵심 플레이
+
+| 시스템 | 게임 안에서의 역할 |
+| --- | --- |
+| 오브젝트 조작 | 물체를 들어 이동하고, 놓거나 던져 퍼즐에 활용 |
+| 시선 힌트 | 힌트 모드에서 단서를 바라봐 강조 표시 활성화 |
+| 환경 퍼즐 | 조건을 확인한 뒤 점프 패드·물리 장치 등 액션 실행 |
+| 생존 | 달리기 스태미너 관리와 몬스터 추격 회피 |
+| 게임 상태 | 피격 피드백을 거쳐 게임 오버 또는 클리어 화면 전환 |
+
+## 게임 흐름
+
+```mermaid
+flowchart LR
+    A[공간 탐색] --> B[단서 확인]
+    B --> C[퍼즐 조건 충족]
+    C --> D[장치 액션 실행]
+    D --> E[다음 구역 이동]
+    E --> F{몬스터 조우}
+    F -->|회피·생존| E
+    F -->|체력 소진| G[게임 오버]
+    E --> H[탈출 조건 달성]
+    H --> I[게임 클리어]
+```
 
 ## 주요 구현
 
-- **물리 상호작용**: Sphere Sweep으로 대상을 찾고 태그·질량에 따라 잡기와 밀기를 구분합니다. PhysicsHandle로 목표 위치를 제어하고, 던지기와 착지 위치 예측을 연결합니다.
-- **퍼즐 조합**: Condition / Action 인터페이스를 구현한 액터를 트리거에서 조합합니다. 압력판과 태그 조건을 문, 점프 패드, 물리 액션에 연결할 수 있습니다.
-- **퍼즐 힌트**: 퍼즐 모드에서 힌트를 표시하고, 응시 시간을 MPC의 FocusRatio 값과 외곽선·머티리얼 효과에 전달합니다.
-- **플레이어 상태**: 스태미나 소모·회복·탈진 상태와 체력 변경·사망 이벤트를 처리합니다.
+### 물리 오브젝트 조작
 
-## 코드 위치
+화면 중앙의 `Sphere Sweep`으로 대상을 찾고 `Physics Handle`로 잡은 물체를 이동. 놓을 때 물리 상태를 복구하고, 던질 때 카메라 방향 임펄스를 적용.
 
-| 기능 | 주요 파일 |
+- 코드: `Source/EscapeGame260422/C_InteractionComponent.*`
+- 주요 함수: `Trace()` · `Grab()` · `TickComponent()` · `Release()` · `Throw()`
+
+### 조건·액션 기반 퍼즐
+
+`PuzzleTriggerActor`가 연결된 조건을 검사하고, 모두 통과하면 액션을 실행. 조건과 액션을 분리해 압력판·겹침 판정과 점프 패드·물리 장치를 조합.
+
+- 조건: `PuzzleCondition` · `OverlapCondition` · `PressurePlate`
+- 액션: `PuzzleAction` · `JumpPadAction` · `PhysicsAction`
+
+### 시선 기반 힌트
+
+힌트 대상을 바라본 시간을 누적하고, 기준에 도달하면 `CustomDepth` 강조 효과를 적용. 힌트 등록과 조명 제어는 `PuzzleHighlightSubsystem`에서 관리.
+
+- 코드: `InteractHintActor.cpp` · `PuzzleHighlightSubsystem`
+- 주요 함수: `UpdateFocus()` · `ActivateHint()`
+
+### 몬스터 AI와 피격 처리
+
+Behavior Tree의 거리 검사로 순찰과 추격을 전환. 공격 애니메이션의 `AnimNotify` 구간에 공격 판정을 연결하고, 피격 시 체력과 화면 효과를 갱신.
+
+- 에셋: `BT_Monster` · `BP_Monster` · `ABP_Monster`
+- 코드: `HealthComponent.cpp`
+
+### 스태미너와 게임 상태
+
+달리기 중 스태미너를 소모하고 걷거나 정지하면 회복. 체력 소진과 탈출 완료를 각각 게임 오버·클리어 UI로 연결.
+
+- 코드: `EscapeGame260422Character.cpp` · `HealthComponent.cpp`
+
+## 코드 구성
+
+| 기능 | 주요 파일·에셋 |
 | --- | --- |
-| 물리 조작·착지 예측 | `Source/EscapeGame260422/C_InteractionComponent.*` |
-| 조건 판정·장치 실행 | `PuzzleTriggerActor.*`, `PuzzleCondition.h`, `PuzzleAction.h` |
-| 압력판·겹침 조건 | `PressurePlate.*`, `OverlapCondition.*` |
-| 장치 액션 | `DoorAction.*`, `PhysicsAction.*`, `JumpPadAction.*` |
-| 힌트·시각 피드백 | `InteractHintActor.*`, `PuzzleHighlightSubsystem.*` |
-| 입력·스태미나 | `EscapeGame260422Character.*` |
-| 체력 | `HealthComponent.*` |
+| 물리 조작 | `C_InteractionComponent.*` |
+| 퍼즐 조건·액션 | `PuzzleTriggerActor.*` · `PuzzleCondition.h` · `PuzzleAction.h` |
+| 압력판·겹침 판정 | `PressurePlate.*` · `OverlapCondition.*` |
+| 힌트와 시각 효과 | `InteractHintActor.*` · `PuzzleHighlightSubsystem.*` |
+| 플레이어 입력·스태미너 | `EscapeGame260422Character.*` |
+| 몬스터 행동·공격 | `BT_Monster` · `BP_Monster` · `ABP_Monster` |
+| 체력·피격 | `HealthComponent.*` |
 
-## 저장소에 포함된 에셋
+## 프로젝트 구성 및 에셋
 
-게임에서 참조하는 프로젝트 데이터와 Epic 템플릿 예제 **1,825개(395.20 MiB)**를 Git LFS로 관리합니다. 외부 팩 원본과 출처 확인이 필요한 **117개**는 재배포하지 않고 복원 목록을 제공합니다.
+Unreal Engine 5.3과 Visual Studio C++ 게임 개발 도구 기준. 에셋 복원 후 `EscapeGame260422.uproject`에서 프로젝트 파일을 생성하고 `EscapeGame260422Editor` 대상을 빌드.
 
-**이 저장소만 클론한 상태에서는 원래 게임 전체를 바로 실행할 수 없습니다.** 외부 에셋 복원이 필요하며 Unreal Editor 실행·빌드 검증은 별도로 진행해야 합니다.
+저장소의 공개 에셋만으로 원본 레벨과 Blueprint 연결을 모두 재현할 수는 없음. 외부 에셋의 복원·배포 범위는 아래 문서에서 확인.
 
-- [에셋 복원 방법](Docs/Content-Restoration.md)
+- [에셋 복원 안내](Docs/Content-Restoration.md)
 - [파일별 참조·배포 분류](Docs/AssetManifest.json)
-- [템플릿·외부 자료 출처](Docs/Third-Party-Notices.md)
+- [외부 자료 출처](Docs/Third-Party-Notices.md)
 
-## 개발 환경 구성
+기본 캐릭터 이동과 카메라는 Epic 3인칭 템플릿을 기반으로 확장. 외부 아트·애니메이션·머티리얼 팩은 자체 제작물로 표시하지 않음.
 
-Unreal Engine 5.3과 Visual Studio의 C++ 게임 개발 도구를 사용합니다. `git lfs pull`로 공개 에셋을 받은 후 외부 에셋을 복원합니다. 그다음 `EscapeGame260422.uproject`의 프로젝트 파일을 생성하고 `EscapeGame260422Editor` 대상을 빌드합니다.
+## 저장소
 
-에셋의 포함 범위와 복원 절차는 `Docs/Content-Restoration.md`에 기록합니다. 소스만으로는 원래 레벨과 Blueprint 연결을 재현할 수 없습니다.
+[KimHelpMe/EscapeGame](https://github.com/KimHelpMe/EscapeGame)
 
-## 구현 범위
-
-기본 캐릭터 이동·카메라는 Epic 3인칭 템플릿을 기반으로 확장했습니다. 외부 아트·애니메이션·머티리얼 팩은 자체 제작물로 표시하지 않습니다.
-
-이 저장소는 개발 이후 로컬 프로젝트를 정리해 등록한 자료입니다. 과거의 Git 커밋 이력이나 실행 성능 측정 결과를 재구성하지 않았습니다.
+이 저장소는 개발 이후 로컬 프로젝트를 정리해 등록한 자료. 과거 Git 커밋 이력이나 실행 성능 측정 결과를 재구성하지 않음.
