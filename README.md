@@ -12,7 +12,7 @@
 
 플레이 화면은 최종 영상과 포트폴리오에서 발췌. 외부 아트·애니메이션·머티리얼 에셋을 활용했으며, 게임 기능과 연결 작업은 개인 프로젝트로 진행.
 - **최종 플레이 영상:** (https://naver.me/xKyFMGzc)
-  
+ - **개인 포트폴리오:** (https://naver.me/5reomPh5)
 ## 플레이 흐름
 
 <p align="center"><img src="Docs/Images/readme/level-overview.jpg" alt="이동 발판과 퍼즐 구간" width="78%"></p>
